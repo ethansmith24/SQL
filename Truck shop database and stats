@@ -44,3 +44,6 @@ SELECT AVG(price) FROM truck_shop where aisle=2;
 
 --what are the top five most necessary items? 
 SELECT aisle, product, price, necessity FROM truck_shop ORDER BY necessity asc LIMIT 5;
+
+
+
