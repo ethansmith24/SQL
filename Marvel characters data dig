@@ -98,3 +98,4 @@ SELECT COUNT(*), hometown, ROUND(AVG(strength)) AS strength FROM marvels GROUP B
 SELECT name, alignment FROM marvels WHERE popularity > 40 AND intelligence >= 3;
 
 
+ 
