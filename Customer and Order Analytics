@@ -27,3 +27,6 @@ SELECT COUNT(c.acctnum) AS customers, AVG(feb.quantity*feb.price) AS "average sp
 JOIN bit_db.customers c
 ON feb.orderID = c.order_id 
 WHERE feb.quantity>2 AND c.order_id <> '' AND length(c.order_id)=6 AND feb.orderID <> '' AND length(feb.orderID)=6; 
+
+/* List all of the products sold in Los Angeles in February and include how many of each were sold. */
+SELECT product, SUM(quantity) AS "products sold" FROM febsales WHERE location LIKE '%Los Angeles%' GROUP BY product;
