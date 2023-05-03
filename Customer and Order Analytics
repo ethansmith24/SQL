@@ -1,0 +1,29 @@
+/* In this SQL, I'm querying a database with multiple tables to quantify statistics about customer and order data. */
+
+/* How many orders were placed in January? (Remember to filter out the blank and incorrect order IDs) */
+SELECT COUNT(orderID) FROM bit_db.jansales WHERE orderID <> '' AND length(orderID) = 6; 
+
+/* How many of those orders were for an iPhone? */
+SELECT COUNT(orderID) AS "iPhone sales" FROM bit_db.jansales WHERE orderID <> '' AND length(orderID) = 6 AND product = "iPhone"; 
+
+/* Select the customer account numbers for all the orders that were placed in February. */
+SELECT c.acctnum FROM bit_db.customers c
+INNER JOIN bit_db.febsales fs
+ON c.order_id = fs.orderID 
+WHERE fs.orderID <> '' AND length(fs.orderID) = 6 AND c.order_id <> '' AND length(c.order_id) = 6; 
+
+/* Which product was the cheapest one sold in January and what was the price? */
+SELECT product, MIN(price) FROM bit_db.jansales GROUP BY price LIMIT 1; 
+
+/* What is the total revenue for each product sold in January? */
+SELECT SUM(quantity)*price AS "total revenue", product FROM bit_db.jansales GROUP BY product ORDER BY "total revenue" asc;
+
+/* Which products were sold in February at 548 Lincoln St, Seattle, WA 98101, how many of each were sold, and what was the total revenue? */
+SELECT SUM(quantity) as "products sold", product, SUM(quantity)*price as "total revenue" 
+FROM bit_db.febsales WHERE location = "548 Lincoln St, Seattle, WA 98101" GROUP BY product;
+
+/* How many customers ordered more than 2 products at a time in February and what was the average amount spent for those customers? */
+SELECT COUNT(c.acctnum) AS customers, AVG(feb.quantity*feb.price) AS "average spent" FROM bit_db.febsales feb
+JOIN bit_db.customers c
+ON feb.orderID = c.order_id 
+WHERE feb.quantity>2 AND c.order_id <> '' AND length(c.order_id)=6 AND feb.orderID <> '' AND length(feb.orderID)=6; 
