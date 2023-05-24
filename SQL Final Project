@@ -1,4 +1,4 @@
-/* ###  In this project I downloaded a data set with multiple tables and used SQL to analyze the data between tables. ### */
+/* In this project I downloaded a data set with multiple tables and used SQL to analyze the data between tables. */
 
 /* How many customers live in the United States? */
 SELECT COUNT(customers.customerid) AS "US Customers" FROM chinook.customers WHERE customers.country = "USA";
