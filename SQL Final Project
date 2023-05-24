@@ -1,0 +1,115 @@
+/* ###  In this project I downloaded a data set with multiple tables and used SQL to analyze the data between tables. ### */
+
+/* How many customers live in the United States? */
+SELECT COUNT(customers.customerid) AS "US Customers" FROM chinook.customers WHERE customers.country = "USA";
+
+/* How many customers live in each country in order of least to greatest? */
+SELECT COUNT(customers.country) AS "Customers", customers.country FROM chinook.customers GROUP BY customers.country 
+ORDER BY "Customers" asc;
+
+/* Which country has the most customers? */
+SELECT COUNT(customers.country) AS "Customers", customers.country FROM chinook.customers GROUP BY customers.country 
+ORDER BY "Customers" desc LIMIT 1;
+
+/* What is the average total for orders shipped to an address outside of the United States? */ 
+SELECT ROUND(AVG(invoices.total),2) AS "average total" FROM chinook.invoices WHERE invoices.billingcountry <> "USA";
+
+/* How many orders were placed in each country outside of the United States? */
+SELECT COUNT(invoices.invoiceid) AS "total orders", invoices.billingcountry AS "country" FROM chinook.invoices WHERE billingcountry <> "USA" GROUP BY billingcountry ORDER BY "total orders" desc;
+
+/* How many orders did each customer place and in what country do they reside? */
+SELECT cust.firstname, cust.lastname, cust.country, COUNT(invoices.total) AS "total orders" FROM chinook.customers cust  
+JOIN chinook.invoices 
+ON cust.customerid = invoices.customerid GROUP BY cust.country;
+
+/* Which U.S. customers placed orders in 2009 and how many orders did they each place during this time? */
+SELECT cust.firstname, cust.lastname, COUNT(invoices.invoiceid) AS "orders placed" FROM chinook.customers cust
+JOIN chinook.invoices
+ON cust.customerid = invoices.customerid 
+WHERE cust.country = "USA" AND invoices.invoicedate LIKE "2009%" GROUP BY cust.firstname;
+
+/* How many orders were placed between 2011 and 2012? */ 
+SELECT COUNT(invoices.invoiceid) AS "total orders" FROM chinook.invoices WHERE (invoices.invoicedate LIKE "2011%" 
+OR invoices.invoicedate LIKE "2012%");
+
+/* Who is each employee's supervisor and what are both of their job titles? */
+SELECT a.firstname, a.title, b.firstname AS supervisor, b.title AS "supervisor title" 
+FROM chinook.employees a
+LEFT JOIN chinook.employees b
+ON b.employeeid = a.reportsto GROUP BY a.employeeid;
+
+/* Who are the sales agents? */
+SELECT employees.firstname, employees.title FROM chinook.employees WHERE title LIKE "%Agent";
+
+/* Which employee has been employed the longest and what is their hire date? */
+SELECT employees.firstname, MIN(employees.hiredate) AS "hire date" FROM chinook.employees;
+
+/* Who are the 3 newest employees and what are their job titles? */
+SELECT employees.firstname, employees.lastname, MAX(employees.hiredate) AS "hire date", employees.title 
+FROM chinook.employees GROUP BY employees.hiredate ORDER BY employees.hiredate desc LIMIT 3;
+
+/* How many sales did each employee make in 2009 and what is their corresponding job title? */
+SELECT emp.firstname, emp.title, COUNT(invoices.invoiceid) AS sales FROM chinook.employees emp
+JOIN chinook.customers cust
+ON emp.employeeid = cust.supportrepid
+JOIN chinook.invoices
+ON cust.customerid = invoices.customerid WHERE invoices.invoicedate LIKE "2009%" GROUP BY cust.supportrepid;
+
+/* What is the total profit made from each employee's sales in 2013 and how many sales did they each make? */
+SELECT emp.firstname, ROUND(SUM(invoices.total),2) AS "total profit", COUNT(invoices.invoiceid) AS sales 
+FROM chinook.employees emp
+JOIN chinook.customers cust
+ON emp.employeeid = cust.supportrepid
+JOIN chinook.invoices
+ON cust.customerid = invoices.customerid
+WHERE invoices.invoicedate LIKE "2013%" GROUP BY cust.supportrepid;
+
+/* How many songs are in each genre?  */
+SELECT genres.name AS genre, COUNT(tracks.trackid) AS songs FROM chinook.genres
+JOIN chinook.tracks
+ON genres.genreid = tracks.genreid GROUP BY genres.name;
+
+/* Which 3 genres have the most songs? */ 
+SELECT genres.name AS genre, COUNT(tracks.trackid) AS songs FROM chinook.genres
+JOIN chinook.tracks
+ON genres.genreid = tracks.genreid GROUP BY genres.name ORDER BY songs desc LIMIT 3;
+
+/* How many songs does each artist have in each corresponding genre? */
+SELECT art.name AS artist, genres.name AS genre, COUNT(tracks.trackid) AS songs FROM chinook.artists art
+LEFT JOIN chinook.albums
+ON art.artistid = albums.artistid
+LEFT JOIN chinook.tracks
+ON albums.albumid = tracks.albumid
+LEFT JOIN chinook.genres
+ON tracks.genreid = genres.genreid GROUP BY art.name;
+
+/* Which artist has the most number of songs per genre? */
+SELECT art.name AS artist, genres.name AS genre, COUNT(tracks.trackid) AS songs FROM chinook.artists art
+JOIN chinook.albums
+ON art.artistid = albums.artistid
+JOIN chinook.tracks
+ON albums.albumid = tracks.albumid
+JOIN chinook.genres
+ON tracks.genreid = genres.genreid GROUP BY art.name ORDER BY songs desc LIMIT 1;
+
+/* How many MPEG audio files were sold in 2011? */
+SELECT COUNT(invoices.invoiceid) AS "MPEGs sold" FROM chinook.invoices
+JOIN chinook.invoice_items items
+ON invoices.invoiceid = items.invoiceid
+JOIN chinook.tracks
+ON items.trackid = tracks.trackid 
+JOIN chinook.media_types type
+ON tracks.mediatypeid = type.mediatypeid WHERE type.name = "MPEG audio file" AND invoices.invoicedate LIKE "2011%";
+
+/* How many of each media type were sold in the U.S. in 2009? */
+SELECT type.name AS "media type", COUNT(invoices.invoiceid) AS "media sold" FROM chinook.invoices
+JOIN chinook.invoice_items items
+ON invoices.invoiceid = items.invoiceid
+JOIN chinook.tracks
+ON items.trackid = tracks.trackid 
+JOIN chinook.media_types type
+ON tracks.mediatypeid = type.mediatypeid 
+WHERE invoices.invoicedate LIKE "2009%" AND invoices.billingcountry = "USA" GROUP BY type.name;
+
+
+
